@@ -1,4 +1,4 @@
-#  Web Scraping com Python - Monitoramento de Preço de Produto
+#  Web Scraping com Python - Monitoramento de Preços
 
 Este projeto tem como objetivo praticar e aprender **Web Scraping com Python**, utilizando as bibliotecas **Selenium**, **BeautifulSoup** e **WebDriverManager**. O foco foi monitorar o preço de uma **placa de vídeo** na loja [TerabyteShop](https://www.terabyteshop.com.br), salvando os dados em um arquivo JSON.
 
