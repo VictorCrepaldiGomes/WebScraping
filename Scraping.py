@@ -3,7 +3,6 @@
 #BeautifulSoup: Facilita a extração de dados de HTML e XML
 #WebDriverManager: Gerencia o driver do navegador automaticamente
 
-
 # Imports necessários
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,6 +13,8 @@ from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
 import time
 import json
+from colorama import init, Fore, Style
+init(autoreset=True)  # Inicializa o colorama para resetar cores automaticamente
 
 # Definição da URL do produto
 urls = [
@@ -44,9 +45,19 @@ def get_products():
 
 def scraping_loop():
     while True:
-        driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--no-sandbox")
+        chrome_options.add_argument("--disable-dev-shm-usage")
+        chrome_options.add_argument("--window-size=1920,1080")
+        chrome_options.add_argument("--disable-gpu")
+        chrome_options.add_argument("--log-level=3")  # Apenas erros graves
+        chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])  # Remove logs do driver
+        service = Service(ChromeDriverManager().install(), log_path='NUL')
+        driver = webdriver.Chrome(service=service, options=chrome_options)
+        print(Fore.BLUE + "Iniciando o scraping...")
         for url in urls:
-            print(f"Acessando a URL: {url}")
+            print(Fore.MAGENTA + f"Acessando a URL: {url}")
             driver.get(url)
             driver.implicitly_wait(5)
             html = driver.page_source
@@ -95,11 +106,11 @@ def scraping_loop():
             with open("products.json", "w", encoding="utf-8") as f:
                 json.dump(lista, f, ensure_ascii=False, indent=4)
 
-            print(f"Dados salvos com sucesso! Nome do produto: {name_product} - Preço: {valor_produto} - Site: {url.split('/')[2]}")
+            print(Fore.GREEN + f"Dados salvos com sucesso! Nome do produto: {name_product} - Preço: {valor_produto} - Site: {url.split('/')[2]}")
             time.sleep(5)
         driver.quit()
         time.sleep(5)
-        print("Aguardando 5 segundos antes de reiniciar o loop...")
+        print(Fore.YELLOW + "Aguardando 5 segundos antes de reiniciar o loop...")
 
 # Inicia o scraping em uma thread ao iniciar o FastAPI
 threading.Thread(target=scraping_loop, daemon=True).start()
